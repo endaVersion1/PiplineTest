@@ -6,27 +6,28 @@
 
 # https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
 
-name: Aarti Pipline
+name: Aarti Pipeline
 
 schedules:
-- cron: "0 0 * * *"
+- cron: "0 6 * * MON-FRI"
   displayName: "Run Pipeline every Monday - Friday at 6:00am"
   branches:
     include:
     - master  # Replace with the branch you want to build
+
 trigger:
   branches:
     include:
       - master
 
 pool:
- vmImage: ubuntu-latest
+  vmImage: 'ubuntu-latest'
 
 steps:
 - task: NodeTool@0
-displayName: 'Install Node.js and Build'
-inputs:
-    versionSpec: '16.17.1'
+  displayName: 'Install Node.js and Build'
+  inputs:
+     targetType: inline
     script: |
         npm install
         npx wdio wdio.conf.js
@@ -35,7 +36,7 @@ inputs:
   condition: succeededOrFailed()
   inputs:
     targetType: 'inline'
-    script: |      
+    script: |
       Get-UICulture
       function Set-CultureWin([System.Globalization.CultureInfo] $culture) { [System.Threading.Thread]::CurrentThread.CurrentUICulture = $culture ; [System.Threading.Thread]::CurrentThread.CurrentCulture = $culture } ; Set-CultureWin en-GB ; Get-Date;[system.threading.thread]::currentthread.currentculture.DateTimeFormat.ShortDatePattern = 'dd/MM/yyyy';[System.Threading.Thread]::CurrentThread.currentculture.DateTimeFormat.ShortDatePattern
       Get-UICulture
@@ -85,7 +86,7 @@ inputs:
   condition: succeededOrFailed()
   inputs:
     targetType: 'inline'
-    script: |      
+    script: |
       Get-ChildItem -Path $(Build.SourcesDirectory) -recurse -force
 
 - task: CmdLine@2
