@@ -6,197 +6,91 @@
 
 # https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
 
-#trigger:
-
-# main
+name: Aarti Pipline
 
 schedules:
-
 - cron: "0 0 * * *"
-
-  displayName: Daily midnight build
-
+  displayName: "Run Pipeline every Monday - Friday at 6:00am"
   branches:
-
     include:
-
-    - main
-
-  always: true
- 
+    - master  # Replace with the branch you want to build
+trigger:
+  branches:
+    include:
+      - master
 
 pool:
-
-  vmImage: ubuntu-latest
-
- 
+ vmImage: ubuntu-latest
 
 steps:
-
 - task: NodeTool@0
-
   inputs:
-
     versionSpec: '16.17.1'
-
-  displayName: 'Install Node.js'
-
- 
-
-# - script: |
-
-#     npm install
-
-#     npx wdio wdio.conf.js
-
-#   displayName: 'npm install and build'
-
-- script: |
-
+  displayName: 'Install Node.js and Build'
+  script: |
     npm install
-
-  displayName: 'npm install'
-
- 
-
-- task: PowerShell@2
-
-  condition: succeededOrFailed()
-
-  inputs:
-
-    targetType: 'inline'
-
-    script: |      
-
-      Get-UICulture
-
-      function Set-CultureWin([System.Globalization.CultureInfo] $culture) { [System.Threading.Thread]::CurrentThread.CurrentUICulture = $culture ; [System.Threading.Thread]::CurrentThread.CurrentCulture = $culture } ; Set-CultureWin en-GB ; Get-Date;[system.threading.thread]::currentthread.currentculture.DateTimeFormat.ShortDatePattern = 'dd/MM/yyyy';[System.Threading.Thread]::CurrentThread.currentculture.DateTimeFormat.ShortDatePattern
-
-      Get-UICulture
-
-      (Get-UICulture).DateTimeFormat.ShortDatePattern
-
-      Get-Date
-
-      # Start-sleep -Seconds 40
-
-      # Restart-Computer
-
- 
-
-- script: |
-
     npx wdio wdio.conf.js
 
- 
+- task: PowerShell@2
+  condition: succeededOrFailed()
+  inputs:
+    targetType: 'inline'
+    script: |      
+      Get-UICulture
+      function Set-CultureWin([System.Globalization.CultureInfo] $culture) { [System.Threading.Thread]::CurrentThread.CurrentUICulture = $culture ; [System.Threading.Thread]::CurrentThread.CurrentCulture = $culture } ; Set-CultureWin en-GB ; Get-Date;[system.threading.thread]::currentthread.currentculture.DateTimeFormat.ShortDatePattern = 'dd/MM/yyyy';[System.Threading.Thread]::CurrentThread.currentculture.DateTimeFormat.ShortDatePattern
+      Get-UICulture
+      (Get-UICulture).DateTimeFormat.ShortDatePattern
+      Get-Date
+
+- script: |
+    npx wdio wdio.conf.js
 
 - task: PublishCodeCoverageResults@1
-
   condition: succeededOrFailed()
-
   inputs: 
-
     codeCoverageTool: Cobertura
-
     summaryFileLocation: 'coverage/cobertura-coverage.xml'
-
     reportDirectory: '$(System.DefaultWorkingDirectory)/**/coverage'
 
-  
-
 - task: PublishTestResults@2
-
   condition: succeededOrFailed()
-
   inputs:
-
-     testResultsFormat: 'JUnit'
-
-     testResultsFiles: '*.xml'
-
- 
+    testResultsFormat: 'JUnit'
+    testResultsFiles: '*.xml'
 
 - task: CopyFiles@2
-
   condition: succeededOrFailed()
-
   inputs:
-
     SourceFolder: '$(Build.SourcesDirectory)'
-
     Contents: '**.png'
-
     TargetFolder: '$(Build.ArtifactStagingDirectory)'
-
-- task: CopyFiles@2
-
-  condition: succeededOrFailed()
-
-  inputs:
-
-    sourceFolder: '$(Build.SourcesDirectory)'
-
-    targetFolder: '$(Build.ArtifactStagingDirectory)'
-
   displayName: 'Copy project files'
 
- 
-
 - task: PublishPipelineArtifact@1
-
   condition: succeededOrFailed()
-
   inputs:
-
     artifactName: e2e-server
-
     targetPath: '$(Build.SourcesDirectory)'
-
     publishLocation: 'pipeline'
-
   displayName: 'Publish npm artifact'
 
- 
-
 - task: PublishPipelineArtifact@0
-
   displayName: 'Publish Screenshots'
-
   condition: failed()
-
   inputs:
-
-      artifactName: 'Screenshots'
-
-      targetPath: '$(Build.SourcesDirectory)/ADOScreenshots'
-
- 
+    artifactName: 'Screenshots'
+    targetPath: '$(Build.SourcesDirectory)/ADOScreenshots'
 
 - task: PowerShell@2
-
   condition: succeededOrFailed()
-
   inputs:
-
     targetType: 'inline'
-
     script: |      
-
-      # Get-ChildItem -Path '$(Agent.WorkFolder)\*.*' -recurse -force
-
       Get-ChildItem -Path $(Build.SourcesDirectory) -recurse -force
 
- 
-
 - task: CmdLine@2
-
   condition: succeededOrFailed()
-
   inputs:
-
     script: |
-
       echo "$(Build.SourcesDirectory)"
-
-       tree $(Build.SourcesDirectory)
+      tree $(Build.SourcesDirectory)
