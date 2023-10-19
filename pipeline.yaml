@@ -27,9 +27,9 @@ steps:
   inputs:
     versionSpec: '16.17.1'
   displayName: 'Install Node.js and Build'
-  script: |
-    npm install
-    npx wdio wdio.conf.js
+    script: |
+        npm install
+        npx wdio wdio.conf.js
 
 - task: PowerShell@2
   condition: succeededOrFailed()
