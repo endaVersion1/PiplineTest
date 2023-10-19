@@ -24,9 +24,9 @@ pool:
 
 steps:
 - task: NodeTool@0
-  inputs:
+displayName: 'Install Node.js and Build'
+inputs:
     versionSpec: '16.17.1'
-  displayName: 'Install Node.js and Build'
     script: |
         npm install
         npx wdio wdio.conf.js
