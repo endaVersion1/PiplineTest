@@ -10,6 +10,19 @@
 
 # main
 
+schedules:
+
+- cron: "0 0 * * *"
+
+  displayName: Daily midnight build
+
+  branches:
+
+    include:
+
+    - main
+
+  always: true
  
 
 pool:
@@ -187,19 +200,3 @@ steps:
       echo "$(Build.SourcesDirectory)"
 
        tree $(Build.SourcesDirectory)
-
- 
-
-schedules:
-
-- cron: "0 0 * * *"
-
-  displayName: Daily midnight build
-
-  branches:
-
-    include:
-
-    - main
-
-  always: true
